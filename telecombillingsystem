@@ -1,155 +1,134 @@
-#include <stdio.h> 
-#include <string.h> 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-// Structure to hold customer information 
-struct Customer { 
-	char name[50]; 
-	char phoneNumber[15]; 
-	float usage; 
-	float totalBill; 
-}; 
+// Structure to store user details
+struct User {
+    int userId;
+    char name[100];
+    char phoneNumber[15];
+    float totalBill; // Total amount for the user
+};
 
-struct Customer 
-	customers[100]; // Array to store customer data 
-int customerCount = 0; // Variable to keep track of the 
-					// number of customers 
+// Structure to store call records
+struct Call {
+    int userId;       // User associated with the call
+    float duration;   // Duration of the call in minutes
+    float cost;       // Cost for this call
+};
 
-// Function to add a new customer record 
-void addRecord() 
-{ 
-	if (customerCount < 100) { 
-		printf("\nEnter name: "); 
-		scanf(" %[^\n]s", customers[customerCount].name); 
-		printf("Enter phone number: "); 
-		scanf("%s", customers[customerCount].phoneNumber); 
-		printf("Enter usage (in minutes): "); 
-		scanf("%f", &customers[customerCount].usage); 
-		customers[customerCount].totalBill 
-			= customers[customerCount].usage * 0.1; 
-		customerCount++; 
-		printf("\nRecord added successfully!\n"); 
-	} 
-	else { 
-		printf("\nMaximum number of records reached!\n"); 
-	} 
-} 
+// Function to calculate the call cost (rate is $0.10 per minute)
+float calculateCallCost(float duration) {
+    return duration * 0.10; // Example: $0.10 per minute
+}
 
-// Function to view the list of customer records 
-void viewRecords() 
-{ 
-	printf("\nName\tPhone Number\tUsage(min)\tTotal "
-		"Bill($)\n"); 
-	for (int i = 0; i < customerCount; i++) { 
-		printf("%s\t%s\t%.2f\t\t%.2f\n", customers[i].name, 
-			customers[i].phoneNumber, customers[i].usage, 
-			customers[i].totalBill); 
-	} 
-} 
+// Function to add a new user
+void addUser(struct User users[], int *userCount) {
+    printf("Enter User ID: ");
+    scanf("%d", &users[*userCount].userId);
+    getchar();  // To consume the newline character
 
-// Function to modify a customer record 
-void modifyRecord(char phoneNumber[]) 
-{ 
-	for (int i = 0; i < customerCount; i++) { 
-		if (strcmp(customers[i].phoneNumber, phoneNumber) 
-			== 0) { 
-			printf( 
-				"\nEnter new usage (in minutes) for %s: ", 
-				customers[i].name); 
-			scanf("%f", &customers[i].usage); 
-			customers[i].totalBill 
-				= customers[i].usage * 0.1; 
-			printf("\nRecord modified successfully!\n"); 
-			return; 
-		} 
-	} 
-	printf("\nRecord not found!\n"); 
-} 
+    printf("Enter Name: ");
+    fgets(users[*userCount].name, sizeof(users[*userCount].name), stdin);
+    users[*userCount].name[strcspn(users[*userCount].name, "\n")] = '\0';  // Remove newline character
 
-// Function to view payment for a customer 
-void viewPayment(char phoneNumber[]) 
-{ 
-	for (int i = 0; i < customerCount; i++) { 
-		if (strcmp(customers[i].phoneNumber, phoneNumber) 
-			== 0) { 
-			printf( 
-				"%s\t%s\t%.2f\t\t%.2f\n", customers[i].name, 
-				customers[i].phoneNumber, 
-				customers[i].usage, customers[i].totalBill); 
-			return; 
-		} 
-	} 
-	printf("\nRecord not found!\n"); 
-} 
+    printf("Enter Phone Number: ");
+    fgets(users[*userCount].phoneNumber, sizeof(users[*userCount].phoneNumber), stdin);
+    users[*userCount].phoneNumber[strcspn(users[*userCount].phoneNumber, "\n")] = '\0';  // Remove newline character
 
-// Function to delete a customer record 
-void deleteRecord(char phoneNumber[]) 
-{ 
-	for (int i = 0; i < customerCount; i++) { 
-		if (strcmp(customers[i].phoneNumber, phoneNumber) 
-			== 0) { 
-			for (int j = i; j < customerCount - 1; j++) { 
-				customers[j] = customers[j + 1]; 
-			} 
-			customerCount--; 
-			printf("\nRecord deleted successfully!\n"); 
-			return; 
-		} 
-	} 
-	printf("\nRecord not found!\n"); 
-} 
+    users[*userCount].totalBill = 0.0;
+    (*userCount)++;
+    printf("User added successfully.\n");
+}
 
-// Function to display menu options 
-void displayMenu() 
-{ 
-	printf("\n1. Add New Record\n"); 
-	printf("2. View List of Records\n"); 
-	printf("3. Modify Record\n"); 
-	printf("4. View Payment\n"); 
-	printf("5. Delete Record\n"); 
-	printf("6. Exit\n"); 
-} 
+// Function to add a call record
+void addCall(struct Call calls[], int *callCount, int userId) {
+    printf("Enter call duration (in minutes): ");
+    float duration;
+    scanf("%f", &duration);
 
-int main() 
-{ 
-	int choice; 
-	char phoneNumber[15]; 
+    float cost = calculateCallCost(duration);
 
-	while (1) { 
-		displayMenu(); 
-		printf("Enter your choice: "); 
-		scanf("%d", &choice); 
+    calls[*callCount].userId = userId;
+    calls[*callCount].duration = duration;
+    calls[*callCount].cost = cost;
+    (*callCount)++;
 
-		switch (choice) { 
-		case 1: 
-			addRecord(); 
-			break; 
-		case 2: 
-			viewRecords(); 
-			break; 
-		case 3: 
-			printf( 
-				"\nEnter phone number to modify record: "); 
-			scanf("%s", phoneNumber); 
-			modifyRecord(phoneNumber); 
-			break; 
-		case 4: 
-			printf( 
-				"\nEnter phone number to view payment: "); 
-			scanf("%s", phoneNumber); 
-			viewPayment(phoneNumber); 
-			break; 
-		case 5: 
-			printf( 
-				"\nEnter phone number to delete record: "); 
-			scanf("%s", phoneNumber); 
-			deleteRecord(phoneNumber); 
-			break; 
-		case 6: 
-			return 0; 
-		default: 
-			printf("\nInvalid choice! Please try again.\n"); 
-		} 
-	} 
+    printf("Call added successfully.\n");
+}
 
-	return 0; 
+// Function to generate and display a bill for a user
+void generateBill(struct User users[], int userCount, struct Call calls[], int callCount, int userId) {
+    float totalBill = 0.0;
+
+    // Calculate total bill by summing the cost of calls made by the user
+    for (int i = 0; i < callCount; i++) {
+        if (calls[i].userId == userId) {
+            totalBill += calls[i].cost;
+        }
+    }
+
+    // Display user information and the bill
+    printf("\nBill for User ID: %d\n", userId);
+    for (int i = 0; i < userCount; i++) {
+        if (users[i].userId == userId) {
+            printf("Name: %s\n", users[i].name);
+            printf("Phone Number: %s\n", users[i].phoneNumber);
+            printf("Total Bill: $%.2f\n", totalBill);
+            break;
+        }
+    }
+}
+
+// Function to display all users
+void displayUsers(struct User users[], int userCount) {
+    printf("\nUser List:\n");
+    for (int i = 0; i < userCount; i++) {
+        printf("User ID: %d, Name: %s, Phone: %s\n", users[i].userId, users[i].name, users[i].phoneNumber);
+    }
+}
+
+// Main function to run the program
+int main() {
+    struct User users[100];  // Array to store users
+    struct Call calls[500];  // Array to store call records
+    int userCount = 0, callCount = 0;
+    int choice, userId;
+
+    while (1) {
+        printf("\nTelecommunication Billing System\n");
+        printf("1. Add User\n");
+        printf("2. Add Call Record\n");
+        printf("3. Generate Bill\n");
+        printf("4. Display All Users\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addUser(users, &userCount);
+                break;
+            case 2:
+                printf("Enter User ID to record the call: ");
+                scanf("%d", &userId);
+                addCall(calls, &callCount, userId);
+                break;
+            case 3:
+                printf("Enter User ID to generate bill: ");
+                scanf("%d", &userId);
+                generateBill(users, userCount, calls, callCount, userId);
+                break;
+            case 4:
+                displayUsers(users, userCount);
+                break;
+            case 5:
+                printf("Exiting the program.\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
 }
